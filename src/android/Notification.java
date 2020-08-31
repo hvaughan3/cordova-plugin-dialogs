@@ -52,18 +52,21 @@ public class Notification extends CordovaPlugin {
 
     private static final String LOG_TAG = "Notification";
 
-    private static final String ACTION_BEEP           = "beep";
-    private static final String ACTION_ALERT          = "alert";
-    private static final String ACTION_CONFIRM        = "confirm";
-    private static final String ACTION_PROMPT         = "prompt";
-    private static final String ACTION_ACTIVITY_START = "activityStart";
-    private static final String ACTION_ACTIVITY_STOP  = "activityStop";
-    private static final String ACTION_PROGRESS_START = "progressStart";
-    private static final String ACTION_PROGRESS_VALUE = "progressValue";
-    private static final String ACTION_PROGRESS_STOP  = "progressStop";
+    private static final String ACTION_SET_ANDROID_STYLE_NAME = 'setAndroidStyleName';
+    private static final String ACTION_BEEP                   = "beep";
+    private static final String ACTION_ALERT                  = "alert";
+    private static final String ACTION_CONFIRM                = "confirm";
+    private static final String ACTION_PROMPT                 = "prompt";
+    private static final String ACTION_ACTIVITY_START         = "activityStart";
+    private static final String ACTION_ACTIVITY_STOP          = "activityStop";
+    private static final String ACTION_PROGRESS_START         = "progressStart";
+    private static final String ACTION_PROGRESS_VALUE         = "progressValue";
+    private static final String ACTION_PROGRESS_STOP          = "progressStop";
 
     private static final long BEEP_TIMEOUT   = 5000;
     private static final long BEEP_WAIT_TINE = 100;
+
+    private String androidStyleName = "";
 
     public int confirmResult = -1;
     public ProgressDialog spinnerDialog = null;
@@ -92,7 +95,10 @@ public class Notification extends CordovaPlugin {
     	 */
     	if (this.cordova.getActivity().isFinishing()) return true;
 
-        if (action.equals(ACTION_BEEP)) {
+        if (action.equals(ACTION_SET_ANDROID_STYLE_NAME)) {
+            this.setAndroidStyleName(args.getString(0));
+        }
+        else if (action.equals(ACTION_BEEP)) {
             this.beep(args.getLong(0));
         }
         else if (action.equals(ACTION_ALERT)) {
@@ -134,6 +140,15 @@ public class Notification extends CordovaPlugin {
     //--------------------------------------------------------------------------
     // LOCAL METHODS
     //--------------------------------------------------------------------------
+
+    /**
+     * Sets the style name.
+     *
+     * @param styleName     The name of the android xml defined style to override the alert dialog theme (default: THEME_DEVICE_DEFAULT_LIGHT)
+     */
+    public void setAndroidStyleName(final String styleName) {
+        androidStyleName = styleName;
+    }
 
     /**
      * Beep plays the default notification ringtone.
@@ -497,7 +512,9 @@ public class Notification extends CordovaPlugin {
     private Builder createDialog(CordovaInterface cordova) {
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-            return new Builder(cordova.getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int id = androidStyleName == null || androidStyleName.isEmpty() ? AlertDialog.THEME_DEVICE_DEFAULT_LIGHT : cordova.getActivity().getResources().getIdentifier(androidStyleName, "style", cordova.getActivity().getPackageName());
+
+            return new AlertDialog.Builder(cordova.getActivity(), id);
         } else {
             return new Builder(cordova.getActivity());
         }
@@ -507,7 +524,9 @@ public class Notification extends CordovaPlugin {
     private ProgressDialog createProgressDialog(CordovaInterface cordova) {
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            return new ProgressDialog(cordova.getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            int id = androidStyleName == null || androidStyleName.isEmpty() ? AlertDialog.THEME_DEVICE_DEFAULT_LIGHT : cordova.getActivity().getResources().getIdentifier(androidStyleName, "style", cordova.getActivity().getPackageName());
+
+            return new ProgressDialog(cordova.getActivity(), id);
         } else {
             return new ProgressDialog(cordova.getActivity());
         }
