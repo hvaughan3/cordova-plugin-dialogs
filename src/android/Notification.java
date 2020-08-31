@@ -52,7 +52,7 @@ public class Notification extends CordovaPlugin {
 
     private static final String LOG_TAG = "Notification";
 
-    private static final String ACTION_SET_ANDROID_STYLE_NAME = 'setAndroidStyleName';
+    private static final String ACTION_SET_ANDROID_STYLE_NAME = "setAndroidStyleName";
     private static final String ACTION_BEEP                   = "beep";
     private static final String ACTION_ALERT                  = "alert";
     private static final String ACTION_CONFIRM                = "confirm";
